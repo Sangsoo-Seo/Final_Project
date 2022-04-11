@@ -1,0 +1,113 @@
+---
+title: "Data Demo"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    theme: yeti
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+install.packages('tidyverse', repos = "http://cran.us.r-project.org")
+#install.packages('tidymodels', repos = "http://cran.us.r-project.org")
+install.packages('ggplot2', repos = "http://cran.us.r-project.org")
+install.packages('visdat', repos = "http://cran.us.r-project.org")
+install.packages("corrplot", repos = "http://cran.us.r-project.org")
+library(tidyverse)
+library(tidymodels)
+library(ggplot2)
+library(visdat)
+library(corrplot)
+```
+
+```{r}
+df1 = read.csv('data/russia_losses_equipment.csv')
+df2 = read.csv('data/russia_losses_personnel.csv')
+
+df2_1 = subset(df2, select = c(personnel, personnel., POW))
+df = cbind(df1, df2_1)
+
+df %>% head()
+```
+
+
+## 1. An overview of dataset
+
+### 1.1 What does it include?
+This is a dataset for 46 days of Equipment Losses & Death Toll & Military Wounded & Prisoner of War of russians in the Ukraine Russia War. The data is separated to equipment and personnel. df1 is equipment and df2 is personnel. df is combined dataset. 
+
+
+### 1.2 Where and how will you be obtaining it? Include the link and source.
+https://www.kaggle.com/datasets/piterfm/2022-ukraine-russian-war
+
+I got the dataset from Kaggle.
+
+
+### 1.3 About how many observations? How many predictors?
+It contains 45 observations and 18 variables. Data and Day variables are repeated. This dataset is time series. However, the observations could be updated later. 
+```{r}
+print(dim(df))
+```
+
+
+### 1.4 What types of variables will you be working with?
+```{r}
+vis_dat(df)
+```
+There are character, integer and numeric. 
+
+
+### 1.5 Is there any missing data? About how much? Do you have an idea for how to handle it?
+```{r}
+vis_miss(df)
+```
+The above two variables which have NA are both numeric. I can consider mean value to fill NA.
+
+
+
+## 2. An overview of research question(s)
+
+### 2.1 What variable(s) are you interested in predicting? What question(s) are you interested in answering?
+I think human casualties is the most concerning issue, so I am interested in personnel column. Also I want to figure out prisoner of war(POW column).
+
+
+### 2.2 Name your response/outcome variable(s) and briefly describe it/them.
+It will be personnel and POW column, but I am still not sure how to combine these two information. Personnel shows the number of Russian soldiers died and POW indicates the number of Russian prisoners of war due to war. It might be mostly soldiers. 
+
+
+### 2.3 Will these questions be best answered with a classification or regression approach?
+This project needs regression approach. Those two concerning variables are both continuous and there is no categorical in whole dataset. 
+
+
+### 2.4 Which predictors do you think will be especially useful?
+```{r}
+df_cor = subset(df, select = c(-day, -special.equipment, -mobile.SRBM.system))
+M = cor(df_cor %>% dplyr::select(where(is.numeric)))
+corrplot(M, method = "number", type = "lower")
+```
+All variables are strongly correlated. It needs more EDA. 
+
+
+### 2.5 Is the goal of your model descriptive, predictive, inferential, or a combination? Explain.
+I will use descriptive and inferential model. I am going to focus on relationship and trend between variavles rather than prediction. KNN and SVM are examples for the model. 
+
+
+
+## 3. Project timeline
+I will focus on EDA until this month. Dataset is quite small and there is no exact direction of this project - I am not sure to predict which variables, I plan to gain insight into data with EDA. 
+Then, apply several models to predict and explain on next month. 
+
+
+## 4. Extra questions
+The dataset sample size is very small so I don't have any idea to split train/test for prediction. It will hard to predict exact value such as the number of people died. Instead, I will focus to describe relationships between variables. This project will be unsupervised learning. My main goal is to gain interesting insight from the war data. 
+
+
+
+
+
